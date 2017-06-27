@@ -51,6 +51,10 @@ class ofApp : public ofBaseApp{
                 ofSetColor(bg_col);
                 ofDrawRectangle(box);
                 bb_text = fontmain.getStringBoundingBox(text,0,0);
+                if(font_col.r==255&&font_col.g==255&&font_col.b==255){ //we have white font so lets add a dropshadow
+                    ofSetColor(0,0,0,font_col.a);
+                    fontmain.drawString(text, box.x+(box.width*0.5)-(bb_text.width*0.5)-2, box.y+(box.height*0.5)+(bb_text.height*0.5)+2);
+                }
                 ofSetColor(font_col);
                 fontmain.drawString(text, box.x+(box.width*0.5)-(bb_text.width*0.5), box.y+(box.height*0.5)+(bb_text.height*0.5));
             };
@@ -69,11 +73,16 @@ class ofApp : public ofBaseApp{
         ClickTextBox menu3_4frames,menu3_8frames,menu3_12frames;
         ClickTextBox menu3_selframes;
         ClickTextBox menu4_countdown;
-        ClickTextBox menu5_fx1,menu5_fx2,menu5_fx3,menu5_fx4,menu5_fx5,menu5_fx6,menu5_fx7,menu5_fx8;
         ClickTextBox menu5_retry;
         ClickTextBox menu5_finish;
         ClickTextBox menu6_thanks;
         ClickTextBox menu6_endmsg;
+        ClickTextBox menu7_filter;
+        ClickTextBox menu7_fx1,menu7_fx2,menu7_fx3,menu7_fx4,menu7_fx5,menu7_fx6,menu7_fx7,menu7_fx8;
+        ClickTextBox menu7_retry;
+        ClickTextBox menu7_finish;
+        ofRectangle menu7_filter_sel;
+    
     
     
     
@@ -85,28 +94,29 @@ class ofApp : public ofBaseApp{
     
         struct Keyboard{
             
-            string caption = "ADD YOUR NAME OR A CAPTION!";
+            string caption = "ADD A MESSAGE OR YOUR NAME!";
+            string captured_caption;
             int caption_x;
             ofTrueTypeFont fontmain,fontcaption;
             int width;
             int y_pos;
             int key_width,key_space;
             
-            //key_box and chars MUST be same size = 40
+            //key_box and chars MUST be same size = 50
             
-            ofRectangle key_box[40];
-            ofRectangle black_box[40];
+            ofRectangle key_box[50];
+            ofRectangle black_box[50];
             ofRectangle space_box,space_black,del_box,del_black;
-            string chars[40];
+            string chars[50];
             
             ofRectangle bb_text;
             void init(string font, int font_size, int w, int y){
-                string use_chars[40] = {"!","@","#","$","%","-","&","_","(",")","Q","W","E","R","T","Y","U","I","O","P","A","S","D","F","G","H","J","K","L","\"","Z","X","C","V","B","N","M",",",".","?"};
-                for(int i=0;i<40;i++){
+                string use_chars[50] = {"!","@","#","$","%","-","&",":",";","'","1","2","3","4","5","6","7","8","9","0","Q","W","E","R","T","Y","U","I","O","P","A","S","D","F","G","H","J","K","L","\"","Z","X","C","V","B","N","M",",",".","?"};
+                for(int i=0;i<50;i++){
                     chars[i] = use_chars[i];
                 }
                 fontmain.load(font, font_size);
-                fontcaption.load(font, font_size*1.20);
+                fontcaption.load(font, font_size*1.18);
                 width = w;
                 y_pos = y;
                 key_width = width/11;
@@ -117,11 +127,11 @@ class ofApp : public ofBaseApp{
             void draw(){
                 int row = 0;
                 int col = 0;
-                for(int i=0;i<40;i++){
+                for(int i=0;i<50;i++){
                     
                     if(i%10==0 && i!=0){row++;col=0;}
-                    key_box[i].set((key_space*(col+1))+(key_width*col)+5,y_pos+(row*(key_space+key_width)),key_width,key_width);
-                    black_box[i].set((key_space*(col+1))+(key_width*col)+5+3,y_pos+(row*(key_space+key_width))+3,key_width-6,key_width-6);
+                    key_box[i].set((key_space*(col+1))+(key_width*col)+5,y_pos+(row*(key_space+(key_width*0.8))),key_width,key_width*0.8);
+                    black_box[i].set((key_space*(col+1))+(key_width*col)+5+3,y_pos+(row*(key_space+(key_width*0.8)))+3,key_width-6,(key_width*0.8)-6);
                     col++;
                     
                     bb_text = fontmain.getStringBoundingBox(chars[i],0,0);
@@ -135,8 +145,8 @@ class ofApp : public ofBaseApp{
                 }
                 
                 //draw spacebar
-                space_box.set(key_space+4, y_pos+(key_space*4)+(key_width*4), (width*.6)-(key_space*2), (key_width*0.8));
-                space_black.set(key_space+3+4, y_pos+(key_space*4)+(key_width*4)+3, (width*.6)-(key_space*2)-6, (key_width*0.8)-6);
+                space_box.set(key_space+4, y_pos+(key_space*5)+((key_width*0.8)*5), (width*.6)-(key_space*2), (key_width*0.8));
+                space_black.set(key_space+3+4, y_pos+(key_space*5)+((key_width*0.8)*5)+3, (width*.6)-(key_space*2)-6, (key_width*0.8)-6);
                 ofSetColor(255,255,255);
                 ofDrawRectangle(space_box);
                 ofSetColor(0,0,0);
@@ -146,8 +156,8 @@ class ofApp : public ofBaseApp{
                 fontmain.drawString("SPACE", space_box.x+(space_box.width*0.5)-(bb_text.width*0.5), space_box.y+(space_box.height*0.45)+(bb_text.height*0.5));
                 
                 //draw delete
-                del_box.set((width*.6)+key_space-4, y_pos+(key_space*4)+(key_width*4), (width*.397)-(key_space*2), (key_width*0.8));
-                del_black.set((width*.6)+key_space+3-4, y_pos+(key_space*4)+(key_width*4)+3, (width*.397)-(key_space*2)-6, (key_width*0.8)-6);
+                del_box.set((width*.6)+key_space-4, y_pos+(key_space*5)+((key_width*0.8)*5), (width*.397)-(key_space*2), (key_width*0.8));
+                del_black.set((width*.6)+key_space+3-4, y_pos+(key_space*5)+((key_width*0.8)*5)+3, (width*.397)-(key_space*2)-6, (key_width*0.8)-6);
                 ofSetColor(255,255,255);
                 ofDrawRectangle(del_box);
                 ofSetColor(0,0,0);
@@ -166,7 +176,7 @@ class ofApp : public ofBaseApp{
             void create_caption(int x,int y){
                 
                 string returned_char = "^";
-                for(int i=0;i<40;i++){
+                for(int i=0;i<50;i++){
                     if(key_box[i].inside(x,y)){
                         returned_char = chars[i];
                         break;
@@ -174,11 +184,11 @@ class ofApp : public ofBaseApp{
                 }
                 if(space_box.inside(x,y)){ returned_char = " "; }
                 if(returned_char!="^"){
-                    if(caption=="ADD YOUR NAME OR A CAPTION!"){caption="";}
+                    if(caption=="ADD A MESSAGE OR YOUR NAME!"){caption="";}
                     caption += returned_char;
                 }
                 if(del_box.inside(x,y)){
-                    if(caption=="ADD YOUR NAME OR A CAPTION!"){caption="";}
+                    if(caption=="ADD A MESSAGE OR YOUR NAME!"){caption="";}
                     caption = caption.substr(0, caption.size()-1);
                 }
                 
@@ -199,18 +209,16 @@ class ofApp : public ofBaseApp{
     
     
         string mode;
-        /*
-        idle
-        select_gifmode
-        adjust_cam
-        select_frames
-        countdown
-        capturing
-        playback_edit
-        end_message
+        /* THE MODES
+                        1. idle
+                        2. adjust_cam
+                        3. select_frames
+                        4. countdown
+                        5. capturing
+                        6. gif_approve
+                        7. gif_edit
+                        8. end_message
         */
-    
-        string gif_type; //gif type, 'bullet' or 'frame'
     
         int num_frames; //number of frames to be captured
     
@@ -256,10 +264,13 @@ class ofApp : public ofBaseApp{
         ofVideoGrabber cams [NUM_CAMS];
         ofPixels cams_pixels [NUM_CAMS];
         ofTexture cams_texture [NUM_CAMS];
-        
+    
         vector<ofPixels> captured_pixels;
         vector<ofTexture> captured_texture;
         vector<ofImage> captured_image;
+        ofRectangle bb_caption;
+        ofTrueTypeFont caption;
+    
     
         ofxCIFilter fx_CHROME;
         ofxCIFilter fx_FADE;
@@ -269,6 +280,10 @@ class ofApp : public ofBaseApp{
         ofxCIFilter fx_PROCESS;
         ofxCIFilter fx_TONAL;
         ofxCIFilter fx_TRANSFER;
+    
+        ofxCIFilter filter_arr [8];
+    
+        int filter_sel_num;
     
     
 };

@@ -15,18 +15,6 @@ void ofApp::setup(){
     
     cams[0].setDeviceID(0);
     cams[0].initGrabber(CAM_WIDTH,CAM_HEIGHT);
-    
-//    menu1_bullet.fontmain.load("KGHAPPY.ttf", 80);
-//    menu1_bullet.box.set(0,0,DISPLAY_WIDTH,DISPLAY_HEIGHT*0.5);
-//    menu1_bullet.text = "Bullet Cam";
-//    menu1_bullet.bg_col.set(0,0,0);
-//    menu1_bullet.font_col.set(255,255,255);
-    
-    menu1_frame.fontmain.load("KGHAPPY.ttf",70);
-    menu1_frame.box.set(0,0,DISPLAY_WIDTH,DISPLAY_HEIGHT);
-    menu1_frame.text = "Let's Make A GIF";
-    menu1_frame.bg_col.set(0,0,0);
-    menu1_frame.font_col.set(255,255,255);
 
     menu2_adjust.fontmain.load("KGHAPPY.ttf", 50);
     menu2_adjust.box.set(0,0,DISPLAY_WIDTH,DISPLAY_HEIGHT*0.07);
@@ -72,27 +60,43 @@ void ofApp::setup(){
     menu5_retry.bg_col.set(0,0,0,0);
     menu5_retry.font_col.set(255,255,255);
     menu5_finish.fontmain.load("KGHAPPY.ttf", 100);
-    menu5_finish.box.set(0,DISPLAY_HEIGHT*.70,DISPLAY_WIDTH,DISPLAY_HEIGHT*.2);
-    menu5_finish.text = "Create GIF";
+    menu5_finish.box.set(0,DISPLAY_HEIGHT*.80,DISPLAY_WIDTH,DISPLAY_HEIGHT*.2);
+    menu5_finish.text = "Next";
     menu5_finish.bg_col.set(0,0,0,0);
     menu5_finish.font_col.set(255,255,255);
     
-    menu5_fx1.box.set(15,DISPLAY_HEIGHT*.883,118,210);
-    menu5_fx1.bg_col.set(0,0,0);
-    menu5_fx2.box.set(148,DISPLAY_HEIGHT*.883,118,210);
-    menu5_fx2.bg_col.set(0,0,0);
-    menu5_fx3.box.set(281,DISPLAY_HEIGHT*.883,118,210);
-    menu5_fx3.bg_col.set(0,0,0);
-    menu5_fx4.box.set(414,DISPLAY_HEIGHT*.883,118,210);
-    menu5_fx4.bg_col.set(0,0,0);
-    menu5_fx5.box.set(547,DISPLAY_HEIGHT*.883,118,210);
-    menu5_fx5.bg_col.set(0,0,0);
-    menu5_fx6.box.set(680,DISPLAY_HEIGHT*.883,118,210);
-    menu5_fx6.bg_col.set(0,0,0);
-    menu5_fx7.box.set(813,DISPLAY_HEIGHT*.883,118,210);
-    menu5_fx7.bg_col.set(0,0,0);
-    menu5_fx8.box.set(946,DISPLAY_HEIGHT*.883,118,210);
-    menu5_fx8.bg_col.set(0,0,0);
+    menu7_fx1.box.set(15,DISPLAY_HEIGHT*.6,118,210);
+    menu7_fx1.bg_col.set(50,50,50);
+    menu7_fx2.box.set(148,DISPLAY_HEIGHT*.6,118,210);
+    menu7_fx2.bg_col.set(50,50,50);
+    menu7_fx3.box.set(281,DISPLAY_HEIGHT*.6,118,210);
+    menu7_fx3.bg_col.set(50,50,50);
+    menu7_fx4.box.set(414,DISPLAY_HEIGHT*.6,118,210);
+    menu7_fx4.bg_col.set(50,50,50);
+    menu7_fx5.box.set(547,DISPLAY_HEIGHT*.6,118,210);
+    menu7_fx5.bg_col.set(50,50,50);
+    menu7_fx6.box.set(680,DISPLAY_HEIGHT*.6,118,210);
+    menu7_fx6.bg_col.set(50,50,50);
+    menu7_fx7.box.set(813,DISPLAY_HEIGHT*.6,118,210);
+    menu7_fx7.bg_col.set(50,50,50);
+    menu7_fx8.box.set(946,DISPLAY_HEIGHT*.6,118,210);
+    menu7_fx8.bg_col.set(50,50,50);
+    menu7_finish.fontmain.load("KGHAPPY.ttf", 100);
+    menu7_finish.box.set(0,DISPLAY_HEIGHT*.80,DISPLAY_WIDTH,DISPLAY_HEIGHT*.2);
+    menu7_finish.text = "Create GIF";
+    menu7_finish.bg_col.set(0,0,0,0);
+    menu7_finish.font_col.set(255,255,255);
+    menu7_filter.fontmain.load("KGHAPPY.ttf", 40);
+    menu7_filter.box.set(0,DISPLAY_HEIGHT*.47,DISPLAY_WIDTH,DISPLAY_HEIGHT*.2);
+    menu7_filter.text = "SELECT A GIF FILTER";
+    menu7_filter.bg_col.set(0,0,0,0);
+    menu7_filter.font_col.set(255,255,255);
+    menu7_retry.fontmain.load("KGHAPPY.ttf", 50);
+    menu7_retry.box.set(0,0,DISPLAY_WIDTH,DISPLAY_HEIGHT*.07);
+    menu7_retry.text = "Gimme A Retry";
+    menu7_retry.bg_col.set(0,0,0,0);
+    menu7_retry.font_col.set(255,255,255);
+    menu7_filter_sel.set(menu7_fx1.box.x-3, menu7_fx1.box.y-3, menu7_fx1.box.width+6, menu7_fx1.box.height+6);
     
     menu6_thanks.fontmain.load("KGHAPPY.ttf", 90);
     menu6_thanks.box.set(0,DISPLAY_HEIGHT*.4,DISPLAY_WIDTH,DISPLAY_HEIGHT*.2);
@@ -105,7 +109,9 @@ void ofApp::setup(){
     menu6_endmsg.bg_col.set(0,0,0,0);
     menu6_endmsg.font_col.set(255,255,255);
     
-    myKeyboard.init("KGHAPPY.ttf", 35, DISPLAY_WIDTH, 300);
+    myKeyboard.init("KGHAPPY.ttf", 35, DISPLAY_WIDTH, 500);
+    
+    caption.load("KGHAPPY.ttf", 42);
     
     //touch_prev.set(0,0);
     
@@ -134,6 +140,16 @@ void ofApp::setup(){
     fx_PROCESS.setup(OFX_FILTER_TYPE_PHOTO_EFFECT_PROCESS);
     fx_TONAL.setup(OFX_FILTER_TYPE_PHOTO_EFFECT_TONAL);
     fx_TRANSFER.setup(OFX_FILTER_TYPE_PHOTO_EFFECT_TRANSFER);
+    
+    filter_arr[0] = fx_CHROME;
+    filter_arr[1] = fx_FADE;
+    filter_arr[2] = fx_INSTANT;
+    filter_arr[3] = fx_MONO;
+    filter_arr[4] = fx_NOIR;
+    filter_arr[5] = fx_PROCESS;
+    filter_arr[6] = fx_TONAL;
+    filter_arr[7] = fx_TRANSFER;
+    filter_sel_num = 0;
     
 }
 
@@ -222,14 +238,14 @@ void ofApp::update(){
             capture_frame++;
             if(capture_frame==num_frames){
                 captured = true;
-                mode="playback_edit";
+                mode="gif_approve";
             }else{
                 flash_timer = ofGetElapsedTimeMillis();
             }
             
         }
         
-    }else if(mode=="playback_edit"){ //menu5
+    }else if(mode=="gif_approve"){ //menu5
 
         if(captured==true){
             
@@ -245,6 +261,10 @@ void ofApp::update(){
             }
             
         }
+        
+    }else if(mode=="gif_edit"){ //menu7
+
+        //nothing
         
     }else if(mode=="end_message"){ //menu6
         
@@ -272,14 +292,16 @@ void ofApp::draw(){
         
         if(captured==true){
             captured_image[captured_playframe].draw(0,0,1080,1920);
+            bb_caption = caption.getStringBoundingBox(myKeyboard.captured_caption,0,0);
+            ofSetColor(0,0,0,0.5);
+            caption.drawString(myKeyboard.captured_caption, int((DISPLAY_WIDTH - bb_caption.width)/2.0)-2, (DISPLAY_HEIGHT*0.96)+2);
+            ofSetColor(255,255,255);
+            caption.drawString(myKeyboard.captured_caption, int((DISPLAY_WIDTH - bb_caption.width)/2.0), DISPLAY_HEIGHT*0.96);
         }
         
-        myKeyboard.draw();
-
     }else if(mode=="select_gifmode"){ //menu1
         
-        menu1_bullet.draw();
-        menu1_frame.draw();
+        //not using this anymore
         
     }else if(mode=="adjust_cam"){ //menu2
         
@@ -323,14 +345,10 @@ void ofApp::draw(){
         ofDrawRectangle(0,0,DISPLAY_WIDTH,DISPLAY_HEIGHT);
 
         
-    }else if(mode=="playback_edit"){ //menu5
+    }else if(mode=="gif_approve"){ //menu5
         
         if(captured==true){
-
-//                captured_texture[playback_frame].drawSubsection((DISPLAY_WIDTH-playback_width)*0.5, ((DISPLAY_HEIGHT-playback_height)*0.5), playback_width, playback_height, playback_horizontal_offset*1, playback_vertical_offset, playback_width, playback_height);
-            
             captured_texture[playback_frame].draw(0,0,DISPLAY_WIDTH,DISPLAY_HEIGHT);
-
         }
         
         menu5_retry.box.setX(sin(ofGetElapsedTimeMillis()*0.002)*30.0);
@@ -339,15 +357,29 @@ void ofApp::draw(){
         menu5_finish.font_col.set(255,255,255, (abs(sin(ofGetElapsedTimeMillis()*0.003))*200.0)+55.0 );
         menu5_finish.draw();
         
-        menu5_fx1.draw(); fx_demo1.draw(15,DISPLAY_HEIGHT*.883,118,210);
-        menu5_fx2.draw(); fx_demo2.draw(148,DISPLAY_HEIGHT*.883,118,210);
-        menu5_fx3.draw(); fx_demo3.draw(281,DISPLAY_HEIGHT*.883,118,210);
-        menu5_fx4.draw(); fx_demo4.draw(414,DISPLAY_HEIGHT*.883,118,210);
-        menu5_fx5.draw(); fx_demo5.draw(547,DISPLAY_HEIGHT*.883,118,210);
-        menu5_fx6.draw(); fx_demo6.draw(680,DISPLAY_HEIGHT*.883,118,210);
-        menu5_fx7.draw(); fx_demo7.draw(813,DISPLAY_HEIGHT*.883,118,210);
-        menu5_fx8.draw(); fx_demo8.draw(946,DISPLAY_HEIGHT*.883,118,210);
+    }else if(mode=="gif_edit"){ //menu7
         
+        myKeyboard.draw();
+
+        ofSetColor(255,255,255);
+        ofDrawRectangle(menu7_filter_sel);
+        
+        menu7_filter.draw();
+        
+        menu7_fx1.draw(); fx_demo1.draw(15,DISPLAY_HEIGHT*.6,118,210);
+        menu7_fx2.draw(); fx_demo2.draw(148,DISPLAY_HEIGHT*.6,118,210);
+        menu7_fx3.draw(); fx_demo3.draw(281,DISPLAY_HEIGHT*.6,118,210);
+        menu7_fx4.draw(); fx_demo4.draw(414,DISPLAY_HEIGHT*.6,118,210);
+        menu7_fx5.draw(); fx_demo5.draw(547,DISPLAY_HEIGHT*.6,118,210);
+        menu7_fx6.draw(); fx_demo6.draw(680,DISPLAY_HEIGHT*.6,118,210);
+        menu7_fx7.draw(); fx_demo7.draw(813,DISPLAY_HEIGHT*.6,118,210);
+        menu7_fx8.draw(); fx_demo8.draw(946,DISPLAY_HEIGHT*.6,118,210);
+
+        menu7_retry.box.setX(sin(ofGetElapsedTimeMillis()*0.002)*30.0);
+        menu7_retry.draw();
+        
+        menu7_finish.font_col.set(255,255,255, (abs(sin(ofGetElapsedTimeMillis()*0.003))*200.0)+55.0 );
+        menu7_finish.draw();
 
     }else if(mode=="end_message"){ //menu6
         
@@ -400,34 +432,22 @@ void ofApp::mouseDragged(int x, int y, int button){
 //--------------------------------------------------------------
 void ofApp::mousePressed(int x, int y, int button){
     
-    myKeyboard.create_caption(x,y);
+    
     
     timeout_timer = ofGetElapsedTimeMillis();
     
     if(mode=="idle"){
-        //mode = "select_gifmode";
-    }else if(mode=="select_gifmode"){
-        if(menu1_bullet.inside(x, y)){
-            gif_type = "bullet";
-            mode = "adjust_cam";
-            num_frames = 3;
-            cout << "touched bullet" << endl;
-        }
-        if(menu1_frame.inside(x, y)){
-            gif_type = "frame";
-            mode = "adjust_cam";
-            cout << "touched frame" << endl;
-        }
+        
+        mode="adjust_cam";
+        
     }else if(mode=="adjust_cam"){
+        
         if(menu2_ready.inside(x, y)){
-            if(gif_type=="frame"){
-                mode = "select_frames";
-            }
-            if(gif_type=="bullet"){
-                mode = "countdown";
-            }
+            mode = "select_frames";
         }
+        
     }else if(mode=="select_frames"){
+        
         if(menu3_4frames.inside(x, y)){
             num_frames = 4;
             frame_latency = 500;
@@ -443,72 +463,104 @@ void ofApp::mousePressed(int x, int y, int button){
             frame_latency = 300;
             mode = "countdown";
         }
-    }else if(mode=="playback_edit"){
-        if(y<50){
-            //playback_horizontal_offset = int(((float)x/(float)DISPLAY_WIDTH)*120.0);
-            //cout << "horizontal offeset, " << playback_horizontal_offset << endl;
+        
+    }else if(mode=="gif_approve"){
+        
+        if(menu5_finish.inside(x, y)){ //click next
+            mode = "gif_edit";
         }
-        if(menu5_fx1.inside(x, y)){
-            
-        }
-        if(menu5_fx2.inside(x, y)){
-            
-        }
-        if(menu5_fx3.inside(x, y)){
-            
-        }
-        if(menu5_fx4.inside(x, y)){
-            
-        }
-        if(menu5_fx5.inside(x, y)){
-            
-        }
-        if(menu5_fx6.inside(x, y)){
-            
-        }
-        if(menu5_fx7.inside(x, y)){
-            
-        }
-        if(menu5_fx8.inside(x, y)){
-            
-        }
-        if(menu5_finish.inside(x, y)){ //click finish
-            
-            mode = "end_message";
-            end_timer = ofGetElapsedTimeMillis();
-            
-            captured_image.clear();
-            //create the images from the pixels
-            for(int i=0;i<num_frames;i++){ //if bullet, num_frames=3
-                
-                ofImage img; //memory issues?
-                
-                img.setFromPixels(captured_pixels[i]);
-                
-                fx_CHROME.setInputImage(img); //apply fx to img
-
-                fx_CHROME.getOutput(img); //get output img with fx
-                
-                img.save(ofToString(i)+".png",OF_IMAGE_QUALITY_BEST);
-                
-                captured_image.push_back(img);
-                
-                cout << "pushed, " << i << endl;
-            }
-            
-            captured_frames = num_frames;
-            captured = true;
-            captured_playspeed = 120;
-            captured_playframe = 0;
-            
+        
+        if(menu5_retry.inside(x, y)){ //click retry
+            mode = "countdown";
             captured_pixels.clear();
             captured_texture.clear();
             capture_cam = 0;
             countdown_val = 4;
             capture_frame = 0;
+        }
+        
+    }else if(mode=="gif_edit"){
+        
+        myKeyboard.create_caption(x,y);
+        
+        fx_FADE.setup(OFX_FILTER_TYPE_PHOTO_EFFECT_FADE);
+        fx_INSTANT.setup(OFX_FILTER_TYPE_PHOTO_EFFECT_INSTANT);
+        
+        //click to change fx
+        if(menu7_fx1.inside(x, y)){
+            menu7_filter_sel.set(menu7_fx1.box.x-3, menu7_fx1.box.y-3, menu7_fx1.box.width+6, menu7_fx1.box.height+6);
+            filter_sel_num = 0;
+        }
+        if(menu7_fx2.inside(x, y)){
+            menu7_filter_sel.set(menu7_fx2.box.x-3, menu7_fx2.box.y-3, menu7_fx2.box.width+6, menu7_fx2.box.height+6);
+            filter_sel_num = 1;
+        }
+        if(menu7_fx3.inside(x, y)){
+            menu7_filter_sel.set(menu7_fx3.box.x-3, menu7_fx3.box.y-3, menu7_fx3.box.width+6, menu7_fx3.box.height+6);
+            filter_sel_num = 2;
+        }
+        if(menu7_fx4.inside(x, y)){
+            menu7_filter_sel.set(menu7_fx4.box.x-3, menu7_fx4.box.y-3, menu7_fx4.box.width+6, menu7_fx4.box.height+6);
+            filter_sel_num = 3;
+        }
+        if(menu7_fx5.inside(x, y)){
+            menu7_filter_sel.set(menu7_fx5.box.x-3, menu7_fx5.box.y-3, menu7_fx5.box.width+6, menu7_fx5.box.height+6);
+            filter_sel_num = 4;
+        }
+        if(menu7_fx6.inside(x, y)){
+            menu7_filter_sel.set(menu7_fx6.box.x-3, menu7_fx6.box.y-3, menu7_fx6.box.width+6, menu7_fx6.box.height+6);
+            filter_sel_num = 5;
+        }
+        if(menu7_fx7.inside(x, y)){
+            menu7_filter_sel.set(menu7_fx7.box.x-3, menu7_fx7.box.y-3, menu7_fx7.box.width+6, menu7_fx7.box.height+6);
+            filter_sel_num = 6;
+        }
+        if(menu7_fx8.inside(x, y)){
+            menu7_filter_sel.set(menu7_fx8.box.x-3, menu7_fx8.box.y-3, menu7_fx8.box.width+6, menu7_fx8.box.height+6);
+            filter_sel_num = 7;
+        }
+        if(menu7_finish.inside(x, y)){
+            
+            myKeyboard.captured_caption = myKeyboard.caption;
+            
+            mode = "end_message";
+            end_timer = ofGetElapsedTimeMillis();
+            
+            ofSetColor(0,0,0);
+            ofDrawRectangle(0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT);
+            
+            //should thread this?!?!?
+            
+            captured_image.clear();
+            for(int i=0;i<num_frames;i++){
+                ofImage img;
+                img.setFromPixels(captured_pixels[i]);
+                filter_arr[filter_sel_num].setInputImage(img);
+                filter_arr[filter_sel_num].getOutput(img);
+                captured_image.push_back(img);
+            }
+            
+            //save images to file
+            for(int i=0;i<num_frames;i++){
+                captured_image[i].save(ofToString(i)+".png",OF_IMAGE_QUALITY_BEST);
+                cout << "saved image, " << i << endl;
+            }
+            
+            //reset
+            captured_frames = num_frames;
+            captured = true;
+            captured_playspeed = 120;
+            captured_playframe = 0;
+            captured_pixels.clear();
+            captured_texture.clear();
+            countdown_val = 4;
+            capture_frame = 0;
+            myKeyboard.caption = "ADD A MESSAGE OR YOUR NAME!";
+            filter_sel_num = 0;
+            menu7_filter_sel.set(menu7_fx1.box.x-3, menu7_fx1.box.y-3, menu7_fx1.box.width+6, menu7_fx1.box.height+6);
             
         }
-        if(menu5_retry.inside(x, y)){ //click retry
+        if(menu7_retry.inside(x, y)){ //click retry
             
             mode = "countdown";
             captured_pixels.clear();
@@ -516,6 +568,9 @@ void ofApp::mousePressed(int x, int y, int button){
             capture_cam = 0;
             countdown_val = 4;
             capture_frame = 0;
+            myKeyboard.caption = "ADD A MESSAGE OR YOUR NAME!";
+            filter_sel_num = 0;
+            menu7_filter_sel.set(menu7_fx1.box.x-3, menu7_fx1.box.y-3, menu7_fx1.box.width+6, menu7_fx1.box.height+6);
             
         }
     }
