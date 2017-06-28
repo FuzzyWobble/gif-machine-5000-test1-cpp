@@ -1,10 +1,12 @@
 #pragma once
 
 #include "ofMain.h"
+#include "ofxCI.h" //image filters
+//#include "ofxHttpUtils.h"
+#include "HttpFormManager.h"
+#include "ofxLibwebsockets.h"
 
-#include "ofxCI.h"
-
-#define NUM_CAMS 1
+#define NUM_CAMS 1 //initially tested multiple cams for bullet cam, but wasn't working very well...
 #define CAM_WIDTH 1280
 #define CAM_HEIGHT 720
 #define DISPLAY_HEIGHT 1920
@@ -33,7 +35,98 @@ class ofApp : public ofBaseApp{
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
 		
- 
+    
+        /*
+         THE MODES:
+         1. idle
+         2. adjust_cam
+         3. select_frames
+         4. countdown
+         5. capturing
+         6. gif_approve
+         7. gif_edit
+         8. end_message
+        */
+        string mode;
+        
+        /* TIMERS */
+        long timeout_timer;
+        long end_timer;
+        
+        /* HACKED TOUCH */
+        //might have to use this touch hack if we are using a basic touch display
+        void touched(int x, int y);
+        ofVec2f touch, touch_prev;
+        
+        /* CAPTURING */
+        int num_frames; //number of frames to be captured
+        int frame_latency; //ms between frames captured
+        long frame_timer;
+        long flash_timer;
+        bool captured; //true once something captured
+        long countdown_timer;
+        int countdown_val;
+        int capture_cam; //used in bullet as we go through cams
+        int capture_frame; //used in frame capture to count frames
+        
+        /* CAPTURED */
+        int captured_frames;
+        int captured_playspeed;
+        int captured_playframe;
+        long captured_playtimer;
+        
+        /* PLAYBACK */
+        int playback_frame;
+        long playback_timer;
+        int playback_frame_speed;
+        
+        /* CAM */
+        ofVideoGrabber vidGrabber1; //we just use this to get the device list
+        ofVideoGrabber cams [NUM_CAMS];
+        ofPixels cams_pixels [NUM_CAMS];
+        ofTexture cams_texture [NUM_CAMS];
+        
+        /* CAPTURED pixels/textures/images */
+        vector<ofPixels> captured_pixels;
+        vector<ofTexture> captured_texture;
+        vector<ofImage> captured_image;
+        
+        /* CAPTION */
+        ofRectangle bb_caption;
+        ofTrueTypeFont caption;
+        
+        /* IMAGE FILTERS */
+        ofxCIFilter fx_CHROME;
+        ofxCIFilter fx_FADE;
+        ofxCIFilter fx_INSTANT;
+        ofxCIFilter fx_MONO;
+        ofxCIFilter fx_NOIR;
+        ofxCIFilter fx_PROCESS;
+        ofxCIFilter fx_TONAL;
+        ofxCIFilter fx_TRANSFER;
+        ofxCIFilter filter_arr [8];
+        int filter_sel_num;
+        ofImage fx_demo1,fx_demo2,fx_demo3,fx_demo4,fx_demo5,fx_demo6,fx_demo7,fx_demo8;
+        ofRectangle menu7_filter_sel;
+        
+        /* HTTP POST images */
+        //        void newResponse(ofxHttpResponse & response);
+        //        ofxHttpUtils httpUtils;
+        //        string post_url, http_response;    
+        void newResponse(HttpFormResponse &response);
+        HttpFormManager fm;
+    
+        /* WEBSOCKETS */
+        ofxLibwebsockets::Client client;
+        // websocket methods
+        void onConnect( ofxLibwebsockets::Event& args );
+        void onOpen( ofxLibwebsockets::Event& args );
+        void onClose( ofxLibwebsockets::Event& args );
+        void onIdle( ofxLibwebsockets::Event& args );
+        void onMessage( ofxLibwebsockets::Event& args );
+        void onBroadcast( ofxLibwebsockets::Event& args );
+    
+    
     
     
     
@@ -66,8 +159,6 @@ class ofApp : public ofBaseApp{
                 }
             };
         };
-        ClickTextBox menu1_bullet;
-        ClickTextBox menu1_frame;
         ClickTextBox menu2_adjust;
         ClickTextBox menu2_ready;
         ClickTextBox menu3_4frames,menu3_8frames,menu3_12frames;
@@ -81,7 +172,10 @@ class ofApp : public ofBaseApp{
         ClickTextBox menu7_fx1,menu7_fx2,menu7_fx3,menu7_fx4,menu7_fx5,menu7_fx6,menu7_fx7,menu7_fx8;
         ClickTextBox menu7_retry;
         ClickTextBox menu7_finish;
-        ofRectangle menu7_filter_sel;
+    
+    
+    
+    
     
     
     
@@ -121,25 +215,28 @@ class ofApp : public ofBaseApp{
                 y_pos = y;
                 key_width = width/11;
                 key_space = key_width/11;
-                cout << "key width, " << key_width << endl;
-                cout << "key space, " << key_space << endl;
             };
             void draw(){
                 int row = 0;
                 int col = 0;
+                
+                //most of this is just positioning/layout/centering junk
+                
                 for(int i=0;i<50;i++){
                     
                     if(i%10==0 && i!=0){row++;col=0;}
+                    
+                    //set box position
                     key_box[i].set((key_space*(col+1))+(key_width*col)+5,y_pos+(row*(key_space+(key_width*0.8))),key_width,key_width*0.8);
                     black_box[i].set((key_space*(col+1))+(key_width*col)+5+3,y_pos+(row*(key_space+(key_width*0.8)))+3,key_width-6,(key_width*0.8)-6);
                     col++;
                     
-                    bb_text = fontmain.getStringBoundingBox(chars[i],0,0);
-                    ofSetColor(255,255,255);
-                    ofDrawRectangle(key_box[i]);
-                    ofSetColor(0,0,0);
-                    ofDrawRectangle(black_box[i]); //hacked way to do a "stroke"
+                    //draw box with white stroke
+                    ofSetColor(255,255,255); ofDrawRectangle(key_box[i]);
+                    ofSetColor(0,0,0); ofDrawRectangle(black_box[i]);
                     
+                    //draw text
+                    bb_text = fontmain.getStringBoundingBox(chars[i],0,0);
                     ofSetColor(255,255,255);
                     fontmain.drawString(chars[i], key_box[i].x+(key_box[i].width*0.5)-(bb_text.width*0.5), key_box[i].y+(key_box[i].height*0.45)+(bb_text.height*0.5));
                 }
@@ -147,10 +244,8 @@ class ofApp : public ofBaseApp{
                 //draw spacebar
                 space_box.set(key_space+4, y_pos+(key_space*5)+((key_width*0.8)*5), (width*.6)-(key_space*2), (key_width*0.8));
                 space_black.set(key_space+3+4, y_pos+(key_space*5)+((key_width*0.8)*5)+3, (width*.6)-(key_space*2)-6, (key_width*0.8)-6);
-                ofSetColor(255,255,255);
-                ofDrawRectangle(space_box);
-                ofSetColor(0,0,0);
-                ofDrawRectangle(space_black); //hacked way to do a "stroke"
+                ofSetColor(255,255,255);ofDrawRectangle(space_box);
+                ofSetColor(0,0,0);ofDrawRectangle(space_black);
                 bb_text = fontmain.getStringBoundingBox("SPACE",0,0);
                 ofSetColor(255,255,255);
                 fontmain.drawString("SPACE", space_box.x+(space_box.width*0.5)-(bb_text.width*0.5), space_box.y+(space_box.height*0.45)+(bb_text.height*0.5));
@@ -158,10 +253,8 @@ class ofApp : public ofBaseApp{
                 //draw delete
                 del_box.set((width*.6)+key_space-4, y_pos+(key_space*5)+((key_width*0.8)*5), (width*.397)-(key_space*2), (key_width*0.8));
                 del_black.set((width*.6)+key_space+3-4, y_pos+(key_space*5)+((key_width*0.8)*5)+3, (width*.397)-(key_space*2)-6, (key_width*0.8)-6);
-                ofSetColor(255,255,255);
-                ofDrawRectangle(del_box);
-                ofSetColor(0,0,0);
-                ofDrawRectangle(del_black); //hacked way to do a "stroke"
+                ofSetColor(255,255,255);ofDrawRectangle(del_box);
+                ofSetColor(0,0,0);ofDrawRectangle(del_black);
                 bb_text = fontmain.getStringBoundingBox("DELETE",0,0);
                 ofSetColor(255,255,255);
                 fontmain.drawString("DELETE", del_box.x+(del_box.width*0.5)-(bb_text.width*0.5), del_box.y+(del_box.height*0.45)+(bb_text.height*0.5));
@@ -200,90 +293,20 @@ class ofApp : public ofBaseApp{
     
     
     
-    
-    
-    
-    
-    
-    
-    
-    
-        string mode;
-        /* THE MODES
-                        1. idle
-                        2. adjust_cam
-                        3. select_frames
-                        4. countdown
-                        5. capturing
-                        6. gif_approve
-                        7. gif_edit
-                        8. end_message
-        */
-    
-        int num_frames; //number of frames to be captured
-    
-        long timeout_timer;
-    
-        long countdown_timer;
-        int countdown_val;
-    
-        long end_timer;
-    
-        //might have to use this touch hack if we are using a basic touch display
-        void touched(int x, int y);
-        ofVec2f touch, touch_prev;
 
-        ofVideoGrabber vidGrabber1; //we just use this to get the device list
     
-        int frame_latency;
-        long frame_timer;
-        bool captured;
-        bool capturing;
-        int capture_cam; //used in bullet as we go through cams
-        int capture_frame; //used in frame capture to count frames
-    
-        //during idle we need to know how many frames were captured as well as a playback speed
-        int captured_frames;
-        int captured_playspeed;
-        int captured_playframe;
-        long captured_playtimer;
-    
-        ofImage fx_demo1,fx_demo2,fx_demo3,fx_demo4,fx_demo5,fx_demo6,fx_demo7,fx_demo8;
-    
-        long flash_timer;
-    
-        bool playback_direction;
-        int playback_frame;
-        long playback_timer;
-        int playback_frame_speed;
-        int playback_horizontal_offset;
-        int playback_vertical_offset;
-        int playback_width;
-        int playback_height;
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        /* Made my own win98 screensaver text */
         
-        ofVideoGrabber cams [NUM_CAMS];
-        ofPixels cams_pixels [NUM_CAMS];
-        ofTexture cams_texture [NUM_CAMS];
-    
-        vector<ofPixels> captured_pixels;
-        vector<ofTexture> captured_texture;
-        vector<ofImage> captured_image;
-        ofRectangle bb_caption;
-        ofTrueTypeFont caption;
-    
-    
-        ofxCIFilter fx_CHROME;
-        ofxCIFilter fx_FADE;
-        ofxCIFilter fx_INSTANT;
-        ofxCIFilter fx_MONO;
-        ofxCIFilter fx_NOIR;
-        ofxCIFilter fx_PROCESS;
-        ofxCIFilter fx_TONAL;
-        ofxCIFilter fx_TRANSFER;
-    
-        ofxCIFilter filter_arr [8];
-    
-        int filter_sel_num;
+//        struct SS_text{
+//            ofTrueTypeFont fontmain;
+//            int x,y;
+//            int w,h;
+//            void init(string font, int font_size){
+//                
+//            }
+//        };
     
     
+
 };

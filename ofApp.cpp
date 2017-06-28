@@ -8,10 +8,21 @@ void ofApp::setup(){
     ofSetVerticalSync(true);
     
     mode = "idle";
-
+    /* 
+    THE MODES:
+    1. idle
+    2. adjust_cam
+    3. select_frames
+    4. countdown
+    5. capturing
+    6. gif_approve
+    7. gif_edit
+    8. end_message
+    */
+    
     //we can now get back a list of devices.
     vector<ofVideoDevice> devices = vidGrabber1.listDevices();
-    cout << "You have " << devices.size() << "cams connected" << endl;
+    cout << "You have " << devices.size() << " cams connected" << endl;
     
     cams[0].setDeviceID(0);
     cams[0].initGrabber(CAM_WIDTH,CAM_HEIGHT);
@@ -116,22 +127,18 @@ void ofApp::setup(){
     //touch_prev.set(0,0);
     
     captured = false;
-    capturing = false;
+
     capture_cam = 0;
     
     frame_latency = 200;
     
     countdown_val = 4;
     
-    playback_direction = true;
     playback_frame = 0;
     playback_timer = 0;
     playback_frame_speed = 160;
-    playback_horizontal_offset = 35;
-    playback_width = CAM_HEIGHT - (2*playback_horizontal_offset); //we rotate 90 so we use CAM_HEIGHT as width
-    playback_height = (int)(playback_width*1.666); //1x1.666 ratio
-    playback_vertical_offset = (int)((CAM_WIDTH - playback_height)*0.5);
-    
+
+    /* FILTERS */
     fx_CHROME.setup(OFX_FILTER_TYPE_PHOTO_EFFECT_CHROME);
     fx_FADE.setup(OFX_FILTER_TYPE_PHOTO_EFFECT_FADE);
     fx_INSTANT.setup(OFX_FILTER_TYPE_PHOTO_EFFECT_INSTANT);
@@ -140,7 +147,6 @@ void ofApp::setup(){
     fx_PROCESS.setup(OFX_FILTER_TYPE_PHOTO_EFFECT_PROCESS);
     fx_TONAL.setup(OFX_FILTER_TYPE_PHOTO_EFFECT_TONAL);
     fx_TRANSFER.setup(OFX_FILTER_TYPE_PHOTO_EFFECT_TRANSFER);
-    
     filter_arr[0] = fx_CHROME;
     filter_arr[1] = fx_FADE;
     filter_arr[2] = fx_INSTANT;
@@ -151,6 +157,20 @@ void ofApp::setup(){
     filter_arr[7] = fx_TRANSFER;
     filter_sel_num = 0;
     
+    /* HTTP POST */
+    
+    //    post_url = "http://46c9a82a.ngrok.io/gif"; //!!! add your post url !!!
+    //    ofAddListener(httpUtils.newResponseEvent,this,&ofApp::newResponse);
+    //    httpUtils.start();
+    
+    //https://github.com/armadillu/ofxHttpForm
+    //FormManager that will deal with the form, add a listener to get an answer when submitted
+    fm.setVerbose(true);	//we want to see what's going on internally
+    ofAddListener(fm.formResponseEvent, this, &ofApp::newResponse);
+    
+    /* WEBSOCKETS */
+    client.connect("ws://65.254.17.130", 8080);
+    client.addListener(this);
 }
 
 //--------------------------------------------------------------
@@ -401,9 +421,9 @@ void ofApp::draw(){
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
-    if(key == 's' || key == 'S'){
-        vidGrabber1.videoSettings();
-    }
+//    if(key == 's' || key == 'S'){
+//        vidGrabber1.videoSettings();
+//    }
 }
 
 //--------------------------------------------------------------
@@ -521,9 +541,10 @@ void ofApp::mousePressed(int x, int y, int button){
         }
         if(menu7_finish.inside(x, y)){
             
+            mode = "end_message";
+            
             myKeyboard.captured_caption = myKeyboard.caption;
             
-            mode = "end_message";
             end_timer = ofGetElapsedTimeMillis();
             
             ofSetColor(0,0,0);
@@ -545,6 +566,26 @@ void ofApp::mousePressed(int x, int y, int button){
                 captured_image[i].save(ofToString(i)+".png",OF_IMAGE_QUALITY_BEST);
                 cout << "saved image, " << i << endl;
             }
+            
+            //http post form with image frames
+            //            ofxHttpForm form;
+            //            form.action = post_url;
+            //            form.method = OFX_HTTP_POST;
+            //            form.addHeaderField("Content-Type","multipart/form-data");
+            //            //form.addHeaderField('Content-Type', 'multipart/form-data')
+            //            form.addFormField("caption", myKeyboard.captured_caption);
+            //            form.addFormField("frames", ofToString(num_frames+1));
+            //            for(int i=0;i<num_frames;i++){
+            //                form.addFile("frame-"+ofToString(i),ofToString(i)+".png");
+            //            }
+            //            httpUtils.addForm(form);
+            HttpForm f = HttpForm( "http://46c9a82a.ngrok.io/gif" );
+            f.addFormField("caption", myKeyboard.captured_caption);
+            f.addFormField("frames", ofToString(num_frames+1));
+            for(int i=0;i<num_frames;i++){
+                f.addFile("frame-"+ofToString(i),ofToString(i)+".png", "image/jpg");
+            }
+            fm.submitForm( f, false );	//false == ignoreReply
             
             //reset
             captured_frames = num_frames;
@@ -578,6 +619,47 @@ void ofApp::mousePressed(int x, int y, int button){
 
 }
 
+void ofApp::newResponse(HttpFormResponse &response){
+    //printf("form '%s' returned : %s\n", response.url.c_str(), response.ok ? "OK" : "KO" );
+    //cout << ofToString(response.status) + ": " + (string)response.responseBody << endl;
+    if(ofToString(response.responseBody)=="Received images"){
+        cout << "Image POST OKAY" << endl;
+    }else{
+        cout << "Image POST ERROR" << endl;
+    }
+}
+
+//--------------------------------------------------------------
+//void ofApp::newResponse(ofxHttpResponse & response){
+//    http_response = ofToString(response.status) + ": " + (string)response.responseBody;
+//    cout << http_response << endl;
+//}
+
+//--------------------------------------------------------------
+void ofApp::onConnect( ofxLibwebsockets::Event& args ){
+    ofLogVerbose()<<"on connected";
+}
+//--------------------------------------------------------------
+void ofApp::onOpen( ofxLibwebsockets::Event& args ){
+    ofLogVerbose()<<"on open";
+}
+//--------------------------------------------------------------
+void ofApp::onClose( ofxLibwebsockets::Event& args ){
+    ofLogVerbose()<<"on close";
+}
+//--------------------------------------------------------------
+void ofApp::onIdle( ofxLibwebsockets::Event& args ){
+    ofLogVerbose()<<"on idle";
+}
+//--------------------------------------------------------------
+void ofApp::onMessage( ofxLibwebsockets::Event& args ){
+    cout << "msg" << endl;
+    cout << args.data.getData() << endl;
+}
+//--------------------------------------------------------------
+void ofApp::onBroadcast( ofxLibwebsockets::Event& args ){
+    cout<<"got broadcast "<<args.message<<endl;
+}
 //--------------------------------------------------------------
 void ofApp::mouseReleased(int x, int y, int button){
 
