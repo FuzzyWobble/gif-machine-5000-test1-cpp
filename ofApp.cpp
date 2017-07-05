@@ -125,6 +125,8 @@ void ofApp::setup(){
     caption.load("KGHAPPY.ttf", 42);
     
     message_count = 0;
+    
+    message_display_duration = 30000; //play for 30s after receiving last message
    
     //touch_prev.set(0,0);
     
@@ -178,7 +180,8 @@ void ofApp::setup(){
 //--------------------------------------------------------------
 void ofApp::update(){
     
-    ofBackground(0,0,0);
+    
+    //ofBackground(255,255,255);
 
     if(mode=="idle"){
         
@@ -192,8 +195,12 @@ void ofApp::update(){
             }
         }
         
-        for(int i=0;i<message_count;i++){
-            msgs[i].update();
+        if(ofGetElapsedTimeMillis() - message_display_timer < message_display_duration){
+            for(int i=0;i<message_count;i++){
+                msgs[i].update();
+            }
+        }else{
+            message_count = 0;
         }
 
         
@@ -311,7 +318,7 @@ void ofApp::update(){
 //--------------------------------------------------------------
 void ofApp::draw(){
     
-    
+    ofBackground(0,0,0);
     ofSetColor(255,255,255);
     
 
@@ -326,9 +333,10 @@ void ofApp::draw(){
             caption.drawString(myKeyboard.captured_caption, int((DISPLAY_WIDTH - bb_caption.width)/2.0), DISPLAY_HEIGHT*0.96);
         }
         
-        ofSetColor(255,255,255);
-        for(int i=0;i<message_count;i++){
-            msgs[i].draw();
+        if(ofGetElapsedTimeMillis() - message_display_timer < message_display_duration){
+            for(int i=0;i<message_count;i++){
+                msgs[i].draw();
+            }
         }
         
     }else if(mode=="select_gifmode"){ //menu1
@@ -436,6 +444,13 @@ void ofApp::keyPressed(int key){
 //    if(key == 's' || key == 'S'){
 //        vidGrabber1.videoSettings();
 //    }
+    if(key == 'm' || key == 'M'){
+        if(message_count<100){
+            msgs[message_count].init("KGHAPPY.ttf", 16, "This is message "+ofToString(message_count), "Alex Staudt");
+            message_count++;
+            message_display_timer = ofGetElapsedTimeMillis();
+        }
+    }
 }
 
 //--------------------------------------------------------------
@@ -670,8 +685,9 @@ void ofApp::onMessage( ofxLibwebsockets::Event& args ){
     cout << "msg" << endl;
     cout << args.data.getData() << endl;
     if(message_count<100){
-        msgs[message_count].init("KGHAPPY.ttf", 20, "This is message "+ofToString(message_count), "Alex Staudt");
+        msgs[message_count].init("KGHAPPY.ttf", 16, "This is message "+ofToString(message_count), "Alex Staudt");
         message_count++;
+        message_display_timer = ofGetElapsedTimeMillis();
     }
     
 }

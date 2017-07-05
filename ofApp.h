@@ -292,6 +292,10 @@ class ofApp : public ofBaseApp{
     
     
     
+    
+    
+    
+    
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         /* made my own screen saver bouncy message */
     
@@ -315,10 +319,11 @@ class ofApp : public ofBaseApp{
                 
                 who = _who;
                 
-                x = (int)(ofRandom(0.1,0.4)*DISPLAY_WIDTH);
+                x = (int)(ofRandom(0.1,0.5)*DISPLAY_WIDTH);
                 y = (int)(ofRandom(0.1,0.6)*DISPLAY_HEIGHT);
-                vx = 2;
-                vy = 2;
+                ofVec2f pos(x,y);
+                if(ofRandom(0,1)<0.5){vx = 2;}else{vx = -2;}
+                if(ofRandom(0,1)<0.5){vy = 2;}else{vy = -2;}
                 
                 //we need to add line breaks manually 'cause c++ hates god
                 max_width = 350;
@@ -347,7 +352,10 @@ class ofApp : public ofBaseApp{
 
             }
             void draw(){
-                
+                ofSetColor(0,0,0,150);
+                fontmain.drawString(msg, x-1, y+1);
+                fontmain2.drawString("~"+who, x-1, y+bb.height+5+1);
+                ofSetColor(255,255,255);
                 fontmain.drawString(msg, x, y);
                 fontmain2.drawString("~"+who, x, y+bb.height+5);
                 
@@ -374,8 +382,10 @@ class ofApp : public ofBaseApp{
                 
             }
         };
-        screen_saver_message msgs [100];
+        screen_saver_message msgs [100]; //for some reasong when i tried a vector it threw a bizarre ofTrueTypeFont error
         int message_count;
+        int message_display_duration;
+        long message_display_timer;
     
 
     
