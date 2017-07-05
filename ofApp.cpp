@@ -24,7 +24,7 @@ void ofApp::setup(){
     vector<ofVideoDevice> devices = vidGrabber1.listDevices();
     cout << "You have " << devices.size() << " cams connected" << endl;
     
-    cams[0].setDeviceID(0);
+    cams[0].setDeviceID(devices.size()-1); //if 1 cam connected: 0, if 2 cams connected: 1 
     cams[0].initGrabber(CAM_WIDTH,CAM_HEIGHT);
 
     menu2_adjust.fontmain.load("KGHAPPY.ttf", 50);
@@ -124,6 +124,8 @@ void ofApp::setup(){
     
     caption.load("KGHAPPY.ttf", 42);
     
+    message_count = 0;
+   
     //touch_prev.set(0,0);
     
     captured = false;
@@ -189,6 +191,11 @@ void ofApp::update(){
                 }
             }
         }
+        
+        for(int i=0;i<message_count;i++){
+            msgs[i].update();
+        }
+
         
     }else if(mode=="select_gifmode"){ //menu1
         
@@ -317,6 +324,11 @@ void ofApp::draw(){
             caption.drawString(myKeyboard.captured_caption, int((DISPLAY_WIDTH - bb_caption.width)/2.0)-2, (DISPLAY_HEIGHT*0.96)+2);
             ofSetColor(255,255,255);
             caption.drawString(myKeyboard.captured_caption, int((DISPLAY_WIDTH - bb_caption.width)/2.0), DISPLAY_HEIGHT*0.96);
+        }
+        
+        ofSetColor(255,255,255);
+        for(int i=0;i<message_count;i++){
+            msgs[i].draw();
         }
         
     }else if(mode=="select_gifmode"){ //menu1
@@ -543,6 +555,8 @@ void ofApp::mousePressed(int x, int y, int button){
             
             mode = "end_message";
             
+            message_count = 0;
+            
             myKeyboard.captured_caption = myKeyboard.caption;
             
             end_timer = ofGetElapsedTimeMillis();
@@ -655,6 +669,11 @@ void ofApp::onIdle( ofxLibwebsockets::Event& args ){
 void ofApp::onMessage( ofxLibwebsockets::Event& args ){
     cout << "msg" << endl;
     cout << args.data.getData() << endl;
+    if(message_count<100){
+        msgs[message_count].init("KGHAPPY.ttf", 20, "This is message "+ofToString(message_count), "Alex Staudt");
+        message_count++;
+    }
+    
 }
 //--------------------------------------------------------------
 void ofApp::onBroadcast( ofxLibwebsockets::Event& args ){

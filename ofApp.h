@@ -292,20 +292,93 @@ class ofApp : public ofBaseApp{
     
     
     
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        /* made my own screen saver bouncy message */
+    
+        struct screen_saver_message{
+            ofTrueTypeFont fontmain,fontmain2;
+            ofRectangle bb,temp_bb;
+            ofTrueTypeFont temp_text;
+            string temp_string, new_string;
+            int x,y,vx,vy;
+            int max_width;
+            bool flag_break;
+            string msg,who;
+            void init(string font, int font_size, string _msg, string _who){
+                
+                fontmain.load(font, font_size); //font size of message
+                fontmain.setLineHeight((int)(font_size*1.5));
+                
+                fontmain2.load(font, (int)(font_size*0.6)); //font size of name
+                
+                temp_text.load(font, font_size);
+                
+                who = _who;
+                
+                x = (int)(ofRandom(0.1,0.4)*DISPLAY_WIDTH);
+                y = (int)(ofRandom(0.1,0.6)*DISPLAY_HEIGHT);
+                vx = 2;
+                vy = 2;
+                
+                //we need to add line breaks manually 'cause c++ hates god
+                max_width = 350;
+                flag_break = false;
+                temp_string = "";
+                new_string = "";
+                for (int i = 0; i <_msg.size(); i++){
+                    temp_string += _msg[i];
+                    temp_bb = temp_text.getStringBoundingBox(temp_string, 0, 0);
+                    if(temp_bb.width>max_width){
+                        flag_break = true;
+                    }
+                    if(flag_break==true && _msg[i]==' '){
+                        new_string += temp_string+"\n";
+                        temp_string = "";
+                        flag_break = false;
+                    }
+                }
+                new_string += temp_string;
+                
+                msg = new_string;
+                
+                cout << msg << endl;
+                cout << "~~~" << endl;
+                
+
+            }
+            void draw(){
+                
+                fontmain.drawString(msg, x, y);
+                fontmain2.drawString("~"+who, x, y+bb.height+5);
+                
+            }
+            void update(){
+                
+                x += vx;
+                y += vy;
+                
+                bb = fontmain.getStringBoundingBox(msg, 0, 0);
+                
+                if(x<=0){
+                    vx *= -1;
+                }
+                if(y<=0){
+                    vy *= -1;
+                }
+                if(x+bb.width>=DISPLAY_WIDTH){
+                    vx *= -1;
+                }
+                if(y+bb.height+5>=DISPLAY_HEIGHT){
+                    vy *= -1;
+                }
+                
+            }
+        };
+        screen_saver_message msgs [100];
+        int message_count;
     
 
     
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        /* Made my own win98 screensaver text */
-        
-//        struct SS_text{
-//            ofTrueTypeFont fontmain;
-//            int x,y;
-//            int w,h;
-//            void init(string font, int font_size){
-//                
-//            }
-//        };
     
     
 
