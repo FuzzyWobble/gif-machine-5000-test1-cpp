@@ -24,7 +24,7 @@ void ofApp::setup(){
     vector<ofVideoDevice> devices = vidGrabber1.listDevices();
     cout << "You have " << devices.size() << " cams connected" << endl;
     
-    cams[0].setDeviceID(devices.size()-1); //if 1 cam connected: 0, if 2 cams connected: 1 
+    cams[0].setDeviceID(0); //if 1 cam connected: 0, if 2 cams connected: 1
     cams[0].initGrabber(CAM_WIDTH,CAM_HEIGHT);
 
     menu2_adjust.fontmain.load("KGHAPPY.ttf", 50);
@@ -173,7 +173,7 @@ void ofApp::setup(){
     ofAddListener(fm.formResponseEvent, this, &ofApp::newResponse);
     
     /* WEBSOCKETS */
-    client.connect("ws://65.254.17.130", 8080);
+    client.connect("localhost", 8080);
     client.addListener(this);
 }
 
@@ -611,6 +611,7 @@ void ofApp::mousePressed(int x, int y, int button){
             HttpForm f = HttpForm( "http://46c9a82a.ngrok.io/gif" );
             f.addFormField("caption", myKeyboard.captured_caption);
             f.addFormField("frames", ofToString(num_frames+1));
+            f.addFormField("gifMachineId", "1");
             for(int i=0;i<num_frames;i++){
                 f.addFile("frame-"+ofToString(i),ofToString(i)+".png", "image/jpg");
             }
@@ -683,11 +684,16 @@ void ofApp::onIdle( ofxLibwebsockets::Event& args ){
 //--------------------------------------------------------------
 void ofApp::onMessage( ofxLibwebsockets::Event& args ){
     cout << "msg" << endl;
-    cout << args.data.getData() << endl;
-    if(message_count<100){
-        msgs[message_count].init("KGHAPPY.ttf", 16, "This is message "+ofToString(message_count), "Alex Staudt");
-        message_count++;
-        message_display_timer = ofGetElapsedTimeMillis();
+    cout << args.message << endl;
+    if (ofSplitString(args.message, "__").size() >= 2) {
+        string message = ofSplitString(args.message, "__")[1];
+        string username = ofSplitString(args.message, "__")[0];
+    
+        if(message_count<100){
+            msgs[message_count].init("KGHAPPY.ttf", 16, message, username);
+            message_count++;
+            message_display_timer = ofGetElapsedTimeMillis();
+        }
     }
     
 }
